@@ -1,9 +1,22 @@
-import signalfx
+# Copyright (C) 2017 SignalFx, Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
-import gzip
-import StringIO
-# import time
-import boto3
+from signalfx import SignalFx
+from gzip import GzipFile
+from StringIO import StringIO
+from boto3 import client
 from json import loads, dumps
 from datetime import datetime
 from base64 import b64encode, b64decode
@@ -17,6 +30,16 @@ from metric_maps import METRICS,\
                         METRICS_AURORA_DIMS
 
 
+def e(uni_string):
+    """
+    Helper method that encodes unicode as a UTF-8 string.
+
+    :param uni_string: Unicode to encode.
+    :return: UTF-8 version of uni_string
+    """
+    return uni_string.encode('utf-8')
+
+
 def decrypt_token(encrypted_key):
     """
     Uses the KMS client to decrypt the customer's access token.
@@ -24,7 +47,7 @@ def decrypt_token(encrypted_key):
     :param encrypted_key: The encrypted access token
     :return: The decrypted access token
     """
-    kms = boto3.client('kms')
+    kms = client('kms')
     return kms.decrypt(CiphertextBlob=b64decode(encrypted_key))['Plaintext']
 
 
@@ -46,7 +69,7 @@ def parse_timestamp(timestamp):
     return int((dt_timestamp - epoch).total_seconds() * 1000)
 
 
-def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id, aws_unique_id, engine, extra_dims={}):
+def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id, aws_unique_id, engine, extra_dims=None):
     """
     Builds a dict representing a single point of a metric, ready to be reported.
 
@@ -63,7 +86,7 @@ def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id, aws_uniqu
     """
 
     entry = {
-        'metric': group.encode('utf-8') + '.' + metric.encode('utf-8'),
+        'metric': e(group) + '.' + e(metric),
         'value': value,
         'timestamp': parse_timestamp(timestamp),
         'dimensions': {
@@ -75,8 +98,8 @@ def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id, aws_uniqu
     }
 
     # Add extra dimensions to identify instances of metric groups when necessary e.g. multiple file systems
-    for dimension, value in extra_dims.iteritems():
-        entry['dimensions'][dimension] = value
+    if extra_dims:
+        entry['dimensions'].update(extra_dims)
 
     return entry
 
@@ -120,10 +143,10 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list, process_me
     :return: A list of the entry dicts for this payload (list of dicts)
     """
 
-    instance_id = log_dict[u'instanceID'].encode('utf-8')
-    instance_resource_id = log_dict[u'instanceResourceID'].encode('utf-8')
+    instance_id = e(log_dict[u'instanceID'])
+    instance_resource_id = e(log_dict[u'instanceResourceID'])
     timestamp = log_dict[u'timestamp']
-    engine = log_dict[u'engine'].encode('utf-8')
+    engine = e(log_dict[u'engine'])
 
     # Extract the AWS region in which this Lambda is running from the Lambda ARN
     arn_regex = r'arn:aws:lambda:([^:]+):\w+:function:[^:]+$'
@@ -204,15 +227,15 @@ def parse_process_data(process_list):
             process[u'cpuUsedPc'],                              # % CPU
             float(process[u'memoryUsedPc']) / process[u'rss'],  # % MEM
             '0:00.00',                                          # CPU time
-            process[u'name'].encode('utf-8')                    # Process name
+            e(process[u'name'])                                 # Process name
         ]
         processes_data[process[u'id']] = process_metrics
 
     # Serialize to JSON format, encode in base64, and use gzip compression
     data_as_json = dumps(processes_data)
 
-    compressed_data = StringIO.StringIO()
-    with gzip.GzipFile(fileobj=compressed_data, mode='w') as f:
+    compressed_data = StringIO()
+    with GzipFile(fileobj=compressed_data, mode='w') as f:
         f.write(data_as_json)
 
     return b64encode(compressed_data.getvalue())
@@ -227,16 +250,16 @@ def parse_payload(payload):
     :return: A tuple of the AWS owner id and a dict as parsed from the JSON object in the payload (string, dict)
     """
 
-    message_data = payload[u'awslogs'][u'data'].encode('utf-8')
+    message_data = e(payload[u'awslogs'][u'data'])
     decoded_data = b64decode(message_data)
 
-    compressed_data = StringIO.StringIO(decoded_data)
-    with gzip.GzipFile(fileobj=compressed_data, mode='r') as f:
+    compressed_data = StringIO(decoded_data)
+    with GzipFile(fileobj=compressed_data, mode='r') as f:
         decompressed_data = f.read()
 
     log_event = loads(decompressed_data)
-    owner_id = log_event[u'owner'].encode('utf-8')
-    metrics_as_json = log_event[u'logEvents'][0][u'message'].encode('utf-8')
+    owner_id = e(log_event[u'owner'])
+    metrics_as_json = e(log_event[u'logEvents'][0][u'message'])
     return owner_id, loads(metrics_as_json)
 
 
@@ -290,92 +313,19 @@ def lambda_handler(event, context):
     :return: None
     """
 
-    """
-    start_time = time.clock()
-    old_time = start_time
-    """
-
     decrypted_access_token = decrypt_token(os.environ['access_token'])
-    """
-    curr_time = time.clock()
-    run_time = curr_time - old_time
-    old_time = curr_time
-    print('Token decryption:' + str(run_time))
-    """
 
-    with signalfx.SignalFx().ingest(decrypted_access_token) as ingest:
-        """
-        curr_time = time.clock()
-        run_time = curr_time - old_time
-        old_time = curr_time
-        print('Ingest initialization:' + str(run_time))
-        """
+    with SignalFx().ingest(decrypted_access_token) as ingest:
 
         # Pull out, decompress, and decode the message from CloudWatch Logs
         owner_id, log_dict = parse_payload(event)
-        """
-        curr_time = time.clock()
-        run_time = curr_time - old_time
-        old_time = curr_time
-        print('Payload parsing:' + str(run_time))
-        """
 
         # Creates the appropriate lists/dicts of desired metrics
-        desired_metrics_info = pull_metric_names(log_dict[u'engine'].encode('utf-8'))
-        """
-        curr_time = time.clock()
-        run_time = curr_time - old_time
-        old_time = curr_time
-        print('Grab metric name sets:' + str(run_time))
-        """
+        desired_metrics_info = pull_metric_names(e(log_dict[u'engine']))
 
         # Reads through the payload from logs and creates the desired metric objects
         function_arn = context.invoked_function_arn
         metric_entries = parse_logs(owner_id, function_arn, log_dict, *desired_metrics_info)
-        """
-        curr_time = time.clock()
-        run_time = curr_time - old_time
-        old_time = curr_time
-        print('Log parsing:' + str(run_time))
-        """
 
         # Send the metrics to ingest
         ingest.send(gauges=metric_entries)
-        """
-        curr_time = time.clock()
-        run_time = curr_time - old_time
-        old_time = curr_time
-        print('Metrics sent:' + str(run_time))
-        """
-
-        # Reads through the process list to create process events
-        # process_list = parse_process_data(log_dict[u'processList'])
-
-        # Send the process list events to the metadata ingest
-        """
-        ingest.send_event(
-            event_type='objects.top-info',
-            category='COLLECTD',
-            timestamp=parse_timestamp(log_dict[u'timestamp']),
-            dimensions={
-                'host': log_dict[u'instanceResourceID'].encode('utf-8'),
-                'plugin': 'signalfx-metadata',
-                'plugin_instance': '0.0.29'
-            },
-            properties={
-                'severity': 'OKAY',
-                'message': dumps({
-                    't': process_list,
-                    'v': '0.0.29'
-                })
-            }
-        )
-        """
-
-    """
-    curr_time = time.clock()
-    run_time = curr_time - old_time
-    total_time = curr_time - start_time
-    print('Finish data flush:' + str(run_time))
-    print('Total runtime:' + str(total_time))
-    """

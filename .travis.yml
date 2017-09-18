@@ -1,0 +1,6 @@
+language: python
+python:
+  - "2.7"
+install: "python2.7 -m pip install flake8"
+script: tests
+sudo: false
