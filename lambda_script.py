@@ -93,7 +93,7 @@ def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id, aws_uniqu
             'instanceResourceID': inst_rsrc_id,
             'AWSUniqueId': aws_unique_id,
             'Namespace': 'AWS/RDS',
-            'DatabaseClass': engine
+            'EngineName': engine
         }
     }
 
@@ -128,6 +128,19 @@ def pull_process_overviews(process_list):
     return process_metrics
 
 
+def extract_region(function_arn):
+    """
+    Extracts the AZ from the Lambda's ARN
+
+    :param function_arn: The ARN of this Lambda (string)
+    :return: The AZ (string)
+    """
+
+    arn_regex = r'arn:aws:lambda:([^:]+):\w+:function:[^:]+$'
+    region_matcher = search(arn_regex, function_arn)
+    return region_matcher.group(1)
+
+
 def parse_logs(owner_id, function_arn, log_dict, desired_metric_list, process_metric_list, extra_dims_map):
     """
     Takes in information from CloudWatch Logs, as well as customer-specific configuration, and builds the list of entry
@@ -149,9 +162,7 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list, process_me
     engine = e(log_dict[u'engine'])
 
     # Extract the AWS region in which this Lambda is running from the Lambda ARN
-    arn_regex = r'arn:aws:lambda:([^:]+):\w+:function:[^:]+$'
-    region_matcher = search(arn_regex, function_arn)
-    region = region_matcher.group(1)
+    region = extract_region(function_arn)
 
     # Build the AWSUniqueId dimension for internal use
     aws_unique_id = '_'.join(['rds', instance_id, region, owner_id])
@@ -271,8 +282,6 @@ def pull_metric_names(engine):
     :return: A tuple of a list of the desired metric groups, a list of the metrics available for the process overviews,
              and a dict containing information about which groups need extra dimensions (list, list, dict)
     """
-
-    # TODO: Consider looking into methods of cleaning env variable input to avoid code injection?
 
     # Check engine type
     if engine == 'SqlServer':

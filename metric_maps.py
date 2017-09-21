@@ -1,11 +1,9 @@
 """
-    The default structure(s) of the metric payloads delivered to the Lambda.
+    The default structure(s) of the metric payloads delivered to the Lambda. Note that the Aurora section only contains
+    the structures in which there is meaningful difference from the standard version.
 """
 
-
-"""
-    Standard set of metric info
-"""
+# Standard set of metric info
 METRICS = [
     u'cpuUtilization',
     u'diskIO',
@@ -32,18 +30,14 @@ METRICS_DIMS = {
     u'network': [u'interface']
 }
 
-"""
-    Metric info for Aurora instances.
-"""
+# Metric info for Aurora instances.
 METRICS_AURORA_DIMS = {
     u'diskIO': [],  # This is a workaround to account for the way Aurora sends diskIO metrics (which isn't even listed on their offered metrics)
     u'fileSys': [u'name', u'mountPoint'],
     u'network': [u'interface']
 }
 
-"""
-    Metric info for Microsoft SQL instances.
-"""
+# Metric info for Microsoft SQL instances.
 METRICS_MICROSOFT = [
     u'cpuUtilization',
     u'disks',

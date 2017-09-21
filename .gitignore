@@ -1,2 +1,27 @@
+# IntelliJ
 *.iml
 .idea/*
+
+# pip config file
+*.cfg
+
+# SignalFx Python client installation files
+easy_install.*
+six*
+certifi*
+chardet*
+google
+idna*
+pkg_resources
+protobuf*
+pyformance*
+requests*
+setuptools*
+signalfx*
+sseclient*
+tests
+urllib3*
+ws4py*
+
+# .pyc files
+*.pyc

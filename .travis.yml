@@ -1,6 +1,7 @@
 language: python
-python:
-  - "2.7"
-install: "python2.7 -m pip install flake8"
-script: tests
+python: "2.7"
+install:
+  - "python2.7 -m pip install flake8"
+  - "python2.7 pip install signalfx"
+script: python tests
 sudo: false
