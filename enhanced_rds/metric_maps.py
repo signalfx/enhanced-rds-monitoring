@@ -1,6 +1,7 @@
 """
-    The default structure(s) of the metric payloads delivered to the Lambda. Note that the Aurora section only contains
-    the structures in which there is meaningful difference from the standard version.
+    The default structure(s) of the metric payloads delivered to the Lambda.
+    Note that the Aurora section only contains the structures in which there is
+    meaningful difference from the standard version.
 """
 
 # Standard set of metric info
@@ -32,7 +33,7 @@ METRICS_DIMS = {
 
 # Metric info for Aurora instances.
 METRICS_AURORA_DIMS = {
-    u'diskIO': [],  # This is a workaround to account for the way Aurora sends diskIO metrics (which isn't even listed on their offered metrics)
+    u'diskIO': [],  # Workaround to account for Aurora diskIO metrics
     u'fileSys': [u'name', u'mountPoint'],
     u'network': [u'interface']
 }
