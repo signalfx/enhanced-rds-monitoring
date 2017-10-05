@@ -39,5 +39,5 @@ pip install -r ../requirements.txt --upgrade -t .
 # Package everything up (all dependencies and lambda function code) into the
 # same ZIP archive.
 zip ../$TARGET -r *
-cd ..
-zip -u $TARGET $NAME/*.py
+cd ../$NAME
+zip -u ../$TARGET *.py

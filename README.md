@@ -17,11 +17,11 @@ reporting). After you confirm, there will be a short configuration period,
 after which your instance will automatically report its metrics to a log group
 called RDSOSMetrics which will be created for the purpose by AWS.
 
-### Set up the Lambda
+### Setup the Lambda
 
 #### Create an encryption key
 
-The next step is to set up the Lambda script that will parse the logs, format
+The next step is to setup the Lambda script that will parse the logs, format
 the data, and send it to the SignalFx ingest API. To do this you will need an
 encryption key to use to encrypt your SignalFx access token.
 
