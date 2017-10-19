@@ -1,0 +1,12 @@
+# IntelliJ
+*.iml
+.idea/*
+
+# .pyc files
+*.pyc
+
+# Build directories
+/.tox/
+/build/
+/enhanced_rds.zip
+/*.egg-info
