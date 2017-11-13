@@ -37,6 +37,7 @@ def e(uni_string):
     :param uni_string: Unicode to encode.
     :return: UTF-8 version of uni_string
     """
+
     return uni_string.encode('utf-8')
 
 
@@ -47,10 +48,27 @@ def decrypt_token(encrypted_key):
     :param encrypted_key: The encrypted access token
     :return: The decrypted access token
     """
+
     kms = boto3.client('kms')
     return kms.decrypt(
         CiphertextBlob=base64.b64decode(encrypted_key)
     )['Plaintext']
+
+
+def prep_token():
+    """
+    Determines whether the access token provided is encrypted and returns the
+    plain text access token.
+
+    :return: The plain text access token
+    """
+
+    encrypted_tok_env_var = os.environ['encrypted_access_token']
+    plain_tok_env_var = os.environ['access_token']
+    if len(encrypted_tok_env_var) > 0:
+        return decrypt_token(encrypted_tok_env_var)
+    else:
+        return plain_tok_env_var
 
 
 def parse_timestamp(timestamp):
@@ -127,6 +145,7 @@ def pull_process_overviews(process_list):
     :return: A dict mapping the group name to the dict of information for that
              group (dict of dicts)
     """
+
     return dict(
         (process_info[u'name'].replace(u' ', u''), process_info)
         for process_info in process_list
@@ -345,9 +364,9 @@ def lambda_handler(event, context):
     :return: None
     """
 
-    decrypted_access_token = decrypt_token(os.environ['access_token'])
+    access_token = prep_token()
 
-    with SignalFx().ingest(decrypted_access_token) as ingest:
+    with SignalFx().ingest(access_token) as ingest:
 
         # Pull out, decompress, and decode the message from CloudWatch Logs
         owner_id, log_dict = parse_payload(event)
