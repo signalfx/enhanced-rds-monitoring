@@ -55,7 +55,7 @@ def decrypt_token(encrypted_key):
     )['Plaintext']
 
 
-def prep_token():
+def get_access_token():
     """
     Determines whether the access token provided is encrypted and returns the
     plain text access token.
@@ -63,12 +63,12 @@ def prep_token():
     :return: The plain text access token
     """
 
-    encrypted_tok_env_var = os.environ['encrypted_access_token']
-    plain_tok_env_var = os.environ['access_token']
+    encrypted_tok_env_var = os.environ.get('encrypted_access_token')
     if len(encrypted_tok_env_var) > 0:
         return decrypt_token(encrypted_tok_env_var)
-    else:
-        return plain_tok_env_var
+
+    plain_tok_env_var = os.environ.get('access_token')
+    return plain_tok_env_var
 
 
 def parse_timestamp(timestamp):
@@ -364,7 +364,7 @@ def lambda_handler(event, context):
     :return: None
     """
 
-    access_token = prep_token()
+    access_token = get_access_token()
 
     with SignalFx().ingest(access_token) as ingest:
 
