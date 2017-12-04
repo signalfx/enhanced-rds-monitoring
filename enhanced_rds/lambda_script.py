@@ -63,12 +63,12 @@ def get_access_token():
     :return: The plain text access token
     """
 
-    encrypted_tok_env_var = os.environ.get('encrypted_access_token')
-    if len(encrypted_tok_env_var) > 0:
-        return decrypt_token(encrypted_tok_env_var)
+    encrypted_token = os.environ.get('encrypted_access_token')
+    if encrypted_token:
+        return decrypt_token(encrypted_token)
 
-    plain_tok_env_var = os.environ.get('access_token')
-    return plain_tok_env_var
+    plain_text_token = os.environ.get('access_token')
+    return plain_text_token
 
 
 def parse_timestamp(timestamp):
