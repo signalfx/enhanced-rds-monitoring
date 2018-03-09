@@ -26,8 +26,8 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 
 # Create a temporary setup.cfg file for DistUtils so it can install our
-# dependencies into the given target coorectly (required because of how
-# HomeBrew's Python work).
+# dependencies into the given target correctly (required because of how
+# HomeBrew's Python works).
 cat > setup.cfg << EOF
 [install]
 prefix=

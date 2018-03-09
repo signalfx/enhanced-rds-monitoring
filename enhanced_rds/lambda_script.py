@@ -63,12 +63,10 @@ def get_access_token():
     :return: The plain text access token
     """
 
-    encrypted_token = os.environ.get('encrypted_access_token')
-    if encrypted_token:
-        return decrypt_token(encrypted_token)
-
-    plain_text_token = os.environ.get('access_token')
-    return plain_text_token
+    if 'encrypted_access_token' in os.environ.keys():
+        return decrypt_token(os.environ.get('encrypted_access_token'))
+    else:
+        return os.environ.get('access_token')
 
 
 def parse_timestamp(timestamp):
@@ -132,7 +130,7 @@ def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id,
     return entry
 
 
-def pull_process_overviews(process_list):
+def parse_process_overviews(process_list):
     """
     Extracts the two process list items that provide overview on OS and RDS
     processes as groups within the instance, so they can be used to create
@@ -195,7 +193,7 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list,
     aws_unique_id = '_'.join(['rds', instance_id, region, owner_id])
 
     # Pull the RDS and OS process overview info from the process list
-    process_metrics = pull_process_overviews(log_dict[u'processList'])
+    process_metrics = parse_process_overviews(log_dict[u'processList'])
 
     metric_entries = []
     for group in desired_metric_list:
@@ -334,18 +332,12 @@ def pull_metric_names(engine):
         process_overview_metrics = PROCESS_METRICS
         extra_dims_map = METRICS_DIMS
 
-    if 'groups' in os.environ.keys():
+    if os.environ['groups'] != 'All':
         # Pick user-selected metrics
         desired_metrics = [unicode(group) for group
-                           in os.environ['groups'].split(' ')]
+                           in os.environ.get('groups').split(' ')]
         metric_list = [group for group in full_metrics_list
                        if group in desired_metrics]
-    elif 'groups_out' in os.environ.keys():
-        # Filter out metrics unwanted by the user
-        unwanted_metrics = [unicode(group) for group
-                            in os.environ['groups_out'].split(' ')]
-        metric_list = [group for group in full_metrics_list
-                       if group not in unwanted_metrics]
     else:
         # DEFAULT: Take all metrics
         metric_list = full_metrics_list
