@@ -69,6 +69,19 @@ def get_access_token():
         return os.environ.get('access_token')
 
 
+def get_realm():
+    """
+    Return the realm from an environment variable, or default to us0
+
+    :return: String for a realm
+    """
+
+    if 'realm' in os.environ.keys():
+        return os.environ.get('realm')
+    else:
+        return "us0"
+
+
 def parse_timestamp(timestamp):
     """
     Takes a timestamp string and returns it as an integer of the number of
@@ -357,8 +370,12 @@ def lambda_handler(event, context):
     """
 
     access_token = get_access_token()
+    realm = get_realm()
+    api_url = 'https://api.%s.signalfx.com' % realm
+    ingest_url = 'https://ingest.%s.signalfx.com' % realm
 
-    with SignalFx().ingest(access_token) as ingest:
+    with SignalFx(api_endpoint=api_url,
+                  ingest_endpoint=ingest_url).ingest(access_token) as ingest:
 
         # Pull out, decompress, and decode the message from CloudWatch Logs
         owner_id, log_dict = parse_payload(event)
