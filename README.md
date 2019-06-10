@@ -138,6 +138,8 @@ If you use `encrypted_access_token`, follow the steps below to encrypt it:
   * Select the encryption key you wish to use from the dropdown. A button labelled `Encrypt` will appear next to your environment variables. 
   * Click the `Encrypt` button next to `encrypted_access_token` once. The value will be replaced by a Ciphertext blob.
 
+If you are not in the `us0` realm in SignalFx, you will need to specify a `realm` environment variable. To determine which realm you are in, check your profile page in the SignalFx web application.
+
 #### Basic settings
 Under basic settings, set `Timeout` to `0 min 5 sec`.
 
