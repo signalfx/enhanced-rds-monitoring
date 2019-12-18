@@ -6,59 +6,59 @@
 
 # Standard set of metric info
 METRICS = [
-    u'cpuUtilization',
-    u'diskIO',
-    u'fileSys',
-    u'loadAverageMinute',
-    u'memory',
-    u'network',
-    u'swap',
-    u'tasks',
-    u'OSprocesses',
-    u'RDSprocesses'
+    'cpuUtilization',
+    'diskIO',
+    'fileSys',
+    'loadAverageMinute',
+    'memory',
+    'network',
+    'swap',
+    'tasks',
+    'OSprocesses',
+    'RDSprocesses'
 ]
 
 PROCESS_METRICS = [
-    u'vss',
-    u'rss',
-    u'memoryUsedPc',
-    u'cpuUsedPc'
+    'vss',
+    'rss',
+    'memoryUsedPc',
+    'cpuUsedPc'
 ]
 
 METRICS_DIMS = {
-    u'diskIO': [u'device'],
-    u'fileSys': [u'name', u'mountPoint'],
-    u'network': [u'interface']
+    'diskIO': ['device'],
+    'fileSys': ['name', 'mountPoint'],
+    'network': ['interface']
 }
 
 # Metric info for Aurora instances.
 METRICS_AURORA_DIMS = {
-    u'diskIO': [],  # Workaround to account for Aurora diskIO metrics
-    u'fileSys': [u'name', u'mountPoint'],
-    u'network': [u'interface']
+    'diskIO': [],  # Workaround to account for Aurora diskIO metrics
+    'fileSys': ['name', 'mountPoint'],
+    'network': ['interface']
 }
 
 # Metric info for Microsoft SQL instances.
 METRICS_MICROSOFT = [
-    u'cpuUtilization',
-    u'disks',
-    u'memory',
-    u'network',
-    u'OSprocesses',
-    u'RDSprocesses',
-    u'system'
+    'cpuUtilization',
+    'disks',
+    'memory',
+    'network',
+    'OSprocesses',
+    'RDSprocesses',
+    'system'
 ]
 
 PROCESS_METRICS_MICROSOFT = [
-    u'cpuUsedPc',
-    u'memUsedPc',
-    u'workingSetKb',
-    u'workingSetPrivKb',
-    u'workingSetShareableKb',
-    u'virtKb'
+    'cpuUsedPc',
+    'memUsedPc',
+    'workingSetKb',
+    'workingSetPrivKb',
+    'workingSetShareableKb',
+    'virtKb'
 ]
 
 METRICS_MICROSOFT_DIMS = {
-    u'disks': [u'name'],
-    u'network': [u'interface']
+    'disks': ['name'],
+    'network': ['interface']
 }
