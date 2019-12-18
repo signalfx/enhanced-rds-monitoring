@@ -130,11 +130,11 @@ class TestLambdaComponents(unittest.TestCase):
             if metric_name in checklist:
                 entry_dict[metric_name] = entry
 
-            if len(entry_dict.keys()) == len(checklist):
+            if len(list(entry_dict.keys())) == len(checklist):
                 return entry_dict
 
     def test_standard_parsing(self):
-        desired_metrics_info = pull_metric_names(e(my_sql_dict[u'engine']))
+        desired_metrics_info = pull_metric_names(e(my_sql_dict['engine']))
         metric_entries = parse_logs(
             '1',
             'arn:aws:lambda:us-east-1:946288580872:function:testRDSLambda',
@@ -222,7 +222,7 @@ class TestLambdaComponents(unittest.TestCase):
         )
 
     def test_sql_server_parsing(self):
-        desired_metrics_info = pull_metric_names(e(sql_server_dict[u'engine']))
+        desired_metrics_info = pull_metric_names(e(sql_server_dict['engine']))
         metric_entries = parse_logs(
             '1',
             'arn:aws:lambda:us-west-2:845296:function:testSqlServer',
@@ -298,7 +298,7 @@ class TestLambdaComponents(unittest.TestCase):
         )
 
     def test_aurora_parsing(self):
-        desired_metrics_info = pull_metric_names(e(aurora_dict[u'engine']))
+        desired_metrics_info = pull_metric_names(e(aurora_dict['engine']))
         metric_entries = parse_logs(
             '1234',
             'arn:aws:lambda:eu-west-1:098712340987:function:testAurora',
@@ -366,7 +366,7 @@ class TestLambdaComponents(unittest.TestCase):
             'Incorrect diskIO.writeThroughput'
         )
         self.assertEqual(
-            len(diskio_write_throughput['dimensions'].keys()),
+            len(list(diskio_write_throughput['dimensions'].keys())),
             4,
             'Incorrectly parsed diskIO metrics'
         )
