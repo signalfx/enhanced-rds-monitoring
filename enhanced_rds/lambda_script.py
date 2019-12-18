@@ -21,13 +21,13 @@ import base64
 from signalfx import SignalFx
 from io import StringIO
 from datetime import datetime
-from metric_maps import METRICS,\
-                        METRICS_MICROSOFT,\
-                        PROCESS_METRICS,\
-                        PROCESS_METRICS_MICROSOFT,\
-                        METRICS_DIMS,\
-                        METRICS_MICROSOFT_DIMS,\
-                        METRICS_AURORA_DIMS
+from .metric_maps import METRICS,\
+                         METRICS_MICROSOFT,\
+                         PROCESS_METRICS,\
+                         PROCESS_METRICS_MICROSOFT,\
+                         METRICS_DIMS,\
+                         METRICS_MICROSOFT_DIMS,\
+                         METRICS_AURORA_DIMS
 
 
 def e(uni_string):
