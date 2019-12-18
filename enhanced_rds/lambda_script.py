@@ -91,7 +91,7 @@ def parse_timestamp(timestamp):
     :return: The timestamp in milliseconds (int).
     """
 
-    datetime_values = re.split('\D', timestamp)
+    datetime_values = re.split(r'\D', timestamp)
     datetime_values.remove('')
     datetime_values = [int(val) for val in datetime_values]
 
