@@ -19,7 +19,7 @@ import gzip
 import json
 import base64
 from signalfx import SignalFx
-from StringIO import StringIO
+from io import StringIO
 from datetime import datetime
 from metric_maps import METRICS,\
                         METRICS_MICROSOFT,\
