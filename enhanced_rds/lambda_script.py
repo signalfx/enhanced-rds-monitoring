@@ -158,9 +158,9 @@ def parse_process_overviews(process_list):
     """
 
     return dict(
-        (process_info[u'name'].replace(u' ', u''), process_info)
+        (process_info['name'].replace(' ', ''), process_info)
         for process_info in process_list
-        if process_info[u'name'] in [u'OS processes', u'RDS processes'])
+        if process_info['name'] in ['OS processes', 'RDS processes'])
 
 
 def extract_region(function_arn):
@@ -193,10 +193,10 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list,
     :return: A list of the entry dicts for this payload (list of dicts)
     """
 
-    instance_id = e(log_dict[u'instanceID'])
-    instance_resource_id = e(log_dict[u'instanceResourceID'])
-    timestamp = log_dict[u'timestamp']
-    engine = e(log_dict[u'engine'])
+    instance_id = e(log_dict['instanceID'])
+    instance_resource_id = e(log_dict['instanceResourceID'])
+    timestamp = log_dict['timestamp']
+    engine = e(log_dict['engine'])
 
     # Extract the AWS region in which this Lambda is running from the Lambda
     # ARN
@@ -206,7 +206,7 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list,
     aws_unique_id = '_'.join(['rds', instance_id, region, owner_id])
 
     # Pull the RDS and OS process overview info from the process list
-    process_metrics = parse_process_overviews(log_dict[u'processList'])
+    process_metrics = parse_process_overviews(log_dict['processList'])
 
     metric_entries = []
     for group in desired_metric_list:
@@ -238,7 +238,7 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list,
                         extra_dims
                     ))
         else:
-            if u'name' in metric_group.keys():
+            if 'name' in metric_group.keys():
                 # Only the process metrics have 'name' attributes
                 metric_keys = process_metric_list
             else:
@@ -270,21 +270,21 @@ def parse_process_data(process_list):
 
     processes_data = {}
 
-    for process in [prc for prc in process_list if prc[u'id'] != 0]:
+    for process in [prc for prc in process_list if prc['id'] != 0]:
         process_metrics = [
             'root',  # userId
             20,  # priority
             0,  # nice value
-            process[u'vss'],  # virtual memory size
-            process[u'rss'],  # resident memory size
+            process['vss'],  # virtual memory size
+            process['rss'],  # resident memory size
             0,  # shared memory size
             'R',  # process status
-            process[u'cpuUsedPc'],  # % CPU
-            float(process[u'memoryUsedPc']) / process[u'rss'],  # % MEM
+            process['cpuUsedPc'],  # % CPU
+            float(process['memoryUsedPc']) / process['rss'],  # % MEM
             '0:00.00',  # CPU time
-            e(process[u'name'])  # Process name
+            e(process['name'])  # Process name
         ]
-        processes_data[process[u'id']] = process_metrics
+        processes_data[process['id']] = process_metrics
 
     # Serialize to JSON format, encode in base64, and use gzip compression
     data_as_json = json.dumps(processes_data)
@@ -306,7 +306,7 @@ def parse_payload(payload):
              object in the payload (string, dict)
     """
 
-    message_data = e(payload[u'awslogs'][u'data'])
+    message_data = e(payload['awslogs']['data'])
     decoded_data = base64.b64decode(message_data)
 
     compressed_data = StringIO(decoded_data)
@@ -314,8 +314,8 @@ def parse_payload(payload):
         decompressed_data = f.read()
 
     log_event = json.loads(decompressed_data)
-    owner_id = e(log_event[u'owner'])
-    metrics_as_json = e(log_event[u'logEvents'][0][u'message'])
+    owner_id = e(log_event['owner'])
+    metrics_as_json = e(log_event['logEvents'][0]['message'])
     return owner_id, json.loads(metrics_as_json)
 
 
@@ -347,7 +347,7 @@ def pull_metric_names(engine):
 
     if os.environ['groups'] != 'All':
         # Pick user-selected metrics
-        desired_metrics = [unicode(group) for group
+        desired_metrics = [group for group
                            in os.environ.get('groups').split(' ')]
         metric_list = [group for group in full_metrics_list
                        if group in desired_metrics]
@@ -381,7 +381,7 @@ def lambda_handler(event, context):
         owner_id, log_dict = parse_payload(event)
 
         # Creates the appropriate lists/dicts of desired metrics
-        desired_metrics_info = pull_metric_names(e(log_dict[u'engine']))
+        desired_metrics_info = pull_metric_names(e(log_dict['engine']))
 
         # Reads through the payload from logs and creates the desired metric
         # objects
