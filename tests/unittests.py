@@ -1,6 +1,10 @@
+import os
 import unittest
 from sample_input import my_sql_dict, sql_server_dict, aurora_dict
 from enhanced_rds.lambda_script import e, pull_metric_names, parse_logs
+
+
+os.environ['groups'] = 'All'
 
 
 class TestLambdaComponents(unittest.TestCase):
