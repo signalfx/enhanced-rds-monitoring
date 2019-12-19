@@ -18,6 +18,7 @@ import boto3
 import gzip
 import json
 import base64
+import warnings
 from signalfx import SignalFx
 from io import StringIO
 from datetime import datetime
