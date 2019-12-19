@@ -37,7 +37,7 @@ def e(uni_string):
     :param uni_string: Unicode to encode.
     :return: UTF-8 version of uni_string
     """
-
+    warnings.warn("Python3 uses unicode by default", DeprecationWarning)
     return uni_string.encode('utf-8')
 
 
@@ -124,7 +124,7 @@ def create_metric_entry(group, metric, value, timestamp, inst_rsrc_id,
     """
 
     entry = {
-        'metric': e(group) + '.' + e(metric),
+        'metric': group + '.' + metric,
         'value': value,
         'timestamp': parse_timestamp(timestamp),
         'dimensions': {
@@ -193,10 +193,10 @@ def parse_logs(owner_id, function_arn, log_dict, desired_metric_list,
     :return: A list of the entry dicts for this payload (list of dicts)
     """
 
-    instance_id = e(log_dict['instanceID'])
-    instance_resource_id = e(log_dict['instanceResourceID'])
+    instance_id = log_dict['instanceID']
+    instance_resource_id = log_dict['instanceResourceID']
     timestamp = log_dict['timestamp']
-    engine = e(log_dict['engine'])
+    engine = log_dict['engine']
 
     # Extract the AWS region in which this Lambda is running from the Lambda
     # ARN
@@ -282,7 +282,7 @@ def parse_process_data(process_list):
             process['cpuUsedPc'],  # % CPU
             float(process['memoryUsedPc']) / process['rss'],  # % MEM
             '0:00.00',  # CPU time
-            e(process['name'])  # Process name
+            process['name']  # Process name
         ]
         processes_data[process['id']] = process_metrics
 
@@ -306,7 +306,7 @@ def parse_payload(payload):
              object in the payload (string, dict)
     """
 
-    message_data = e(payload['awslogs']['data'])
+    message_data = payload['awslogs']['data']
     decoded_data = base64.b64decode(message_data)
 
     compressed_data = StringIO(decoded_data)
@@ -314,8 +314,8 @@ def parse_payload(payload):
         decompressed_data = f.read()
 
     log_event = json.loads(decompressed_data)
-    owner_id = e(log_event['owner'])
-    metrics_as_json = e(log_event['logEvents'][0]['message'])
+    owner_id = log_event['owner']
+    metrics_as_json = log_event['logEvents'][0]['message']
     return owner_id, json.loads(metrics_as_json)
 
 
@@ -381,7 +381,7 @@ def lambda_handler(event, context):
         owner_id, log_dict = parse_payload(event)
 
         # Creates the appropriate lists/dicts of desired metrics
-        desired_metrics_info = pull_metric_names(e(log_dict['engine']))
+        desired_metrics_info = pull_metric_names(log_dict['engine'])
 
         # Reads through the payload from logs and creates the desired metric
         # objects

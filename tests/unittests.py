@@ -1,7 +1,7 @@
 import os
 import unittest
 from sample_input import my_sql_dict, sql_server_dict, aurora_dict
-from enhanced_rds.lambda_script import e, pull_metric_names, parse_logs
+from enhanced_rds.lambda_script import pull_metric_names, parse_logs
 
 
 os.environ['groups'] = 'All'
@@ -138,7 +138,7 @@ class TestLambdaComponents(unittest.TestCase):
                 return entry_dict
 
     def test_standard_parsing(self):
-        desired_metrics_info = pull_metric_names(e(my_sql_dict['engine']))
+        desired_metrics_info = pull_metric_names(my_sql_dict['engine'])
         metric_entries = parse_logs(
             '1',
             'arn:aws:lambda:us-east-1:946288580872:function:testRDSLambda',
@@ -226,7 +226,7 @@ class TestLambdaComponents(unittest.TestCase):
         )
 
     def test_sql_server_parsing(self):
-        desired_metrics_info = pull_metric_names(e(sql_server_dict['engine']))
+        desired_metrics_info = pull_metric_names(sql_server_dict['engine'])
         metric_entries = parse_logs(
             '1',
             'arn:aws:lambda:us-west-2:845296:function:testSqlServer',
@@ -302,7 +302,7 @@ class TestLambdaComponents(unittest.TestCase):
         )
 
     def test_aurora_parsing(self):
-        desired_metrics_info = pull_metric_names(e(aurora_dict['engine']))
+        desired_metrics_info = pull_metric_names(aurora_dict['engine'])
         metric_entries = parse_logs(
             '1234',
             'arn:aws:lambda:eu-west-1:098712340987:function:testAurora',
