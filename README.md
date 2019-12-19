@@ -1,7 +1,7 @@
 # SignalFx Enhanced RDS Monitoring Integration
 
 These instructions will describe the steps to deploy the Lambda function to
-parse and report your Enhanced RDS metrics to SignalFx. You can choose to deploy the function either from the Serverless Application Repository (recommended) or from source. Choose a deployment method and follow the steps below to encrypt your SignalFx access token, customize the metrics that will be sent to SignalFx, and create and deploy the new function. 
+parse and report your Enhanced RDS metrics to SignalFx. You can choose to deploy the function either from the Serverless Application Repository (recommended) or from source. Choose a deployment method and follow the steps below to encrypt your SignalFx access token, customize the metrics that will be sent to SignalFx, and create and deploy the new function.
 
 Before you begin, you must enable the Enhanced Monitoring option for the RDS instances you want to monitor using this integration. [Click here for instructions on enabling Enhanced Monitoring](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html).
 
@@ -10,9 +10,9 @@ Before you begin, you must enable the Enhanced Monitoring option for the RDS ins
 * [Metrics collected by this integration](#metric-groups-collected-by-this-integration)
 
 #### Note: Encryption of your SignalFx access token
-This Lambda function uses your SignalFx access token to send metrics to SignalFx, as an environment variable to the function. While Lambda encrypts all environment variables at rest and decrypts them upon invocation, AWS recommends that all sensitive information such as access tokens be encrypted using a KMS key before function deployment, and decrypted at runtime within the code. 
+This Lambda function uses your SignalFx access token to send metrics to SignalFx, as an environment variable to the function. While Lambda encrypts all environment variables at rest and decrypts them upon invocation, AWS recommends that all sensitive information such as access tokens be encrypted using a KMS key before function deployment, and decrypted at runtime within the code.
 
-Both procedures below include instructions for using either an encrypted or non-encrypted access token. 
+Both procedures below include instructions for using either an encrypted or non-encrypted access token.
 
 ## Deploying through the Serverless Application Repository
 
@@ -32,7 +32,7 @@ Search for `signalfx rds` and choose the appropriate entry based on whether you
 encrypted your access token.
 
 To access the templates directly, find the template for encrypted access
-tokens [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:134183635603:applications~signalfx-enhanced-rds-metrics-encrypted). 
+tokens [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:134183635603:applications~signalfx-enhanced-rds-metrics-encrypted).
 The template for non-encrypted access tokens is [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:134183635603:applications~signalfx-enhanced-rds-metrics).
 
 ### 3. Fill out application parameters
@@ -42,7 +42,7 @@ and fill out the fields accordingly.
 **Parameters for template using encrypted access tokens**
 - `EncryptedSignalFxAuthToken`: The Ciphertext blob output from your encryption of your SignalFx organization's access token
 - `KeyId`: The key id of your KMS encryption key; it is the last section of the key's ARN.
-- `SelectedMetricGroups`: The metric groups you wish to send. Enter `All` if you want all available metrics. Otherwise, list the names of desired metric groups, spelled exactly as they are below, separated by single spaces. See [Metrics collected by this integration](#metric-groups-collected-by-this-integration) for options. 
+- `SelectedMetricGroups`: The metric groups you wish to send. Enter `All` if you want all available metrics. Otherwise, list the names of desired metric groups, spelled exactly as they are below, separated by single spaces. See [Metrics collected by this integration](#metric-groups-collected-by-this-integration) for options.
 - `Realm`: Your SignalFx Realm. To determine what realm you are in, check your profile page in the SignalFx web application. Default: `us0`.
 
 **Parameters for template using non-encrypted access tokens**
@@ -57,19 +57,19 @@ For example, the endpoint for sending data in the us1 realm is ingest.us1.signal
 and ingest.eu0.signalfx.com for the eu0 realm. If you try to send data to the incorrect realm,
 your access token will be denied.
 
- 
+
 ### 4. Deploy function and configure trigger
 Click `Deploy`. Once the function has finished deploying, navigate to the
-function's main page. 
+function's main page.
 
 Under the `Configuration` tab, scroll through the list on the left and
 select CloudWatch Logs as the source of the trigger. Below there will be
-specific configurations for the trigger. 
+specific configurations for the trigger.
 
-* Select `RDSOSMetrics` as the log group. 
+* Select `RDSOSMetrics` as the log group.
 * Choose an appropriate name for the filter, and leave the filter pattern
-blank. 
-* Make sure the `Enabled` switch is activated. 
+blank.
+* Make sure the `Enabled` switch is activated.
 
 Click `Add`, then click `Save` in the upper right corner.
 
@@ -107,11 +107,11 @@ for the Lambda.
 ### 4. Create and configure the Lambda function
 From the Lambda creation screen, make sure you have selected
 `Build from scratch`. Select a name for your function. For `Runtime` select
-`Python2.7`. For the execution role, either select the role you wish to use or
+`Python3.8` (although `Python3.6` and `Python3.7` are also supported). For the execution role, either select the role you wish to use or
 select `Create from Template` and add KMS decrypt permissions if need be. You
 will also need to choose a name for the role.
 
-For subsequent tabs, follow the instructions below. 
+For subsequent tabs, follow the instructions below.
 
 #### Designer
 The only thing to be done here is set up the trigger from CloudWatch Logs.
@@ -129,13 +129,13 @@ file containing the deployment package. Change the text in `Handler` to be
 
 #### Environment variables
 
-First create an environment variable called `groups`. This will store the list of metric groups to be reported. To report all available metrics, enter `All`. Otherwise, list the names of desired metric groups, spelled exactly as above, separated by single spaces. 
+First create an environment variable called `groups`. This will store the list of metric groups to be reported. To report all available metrics, enter `All`. Otherwise, list the names of desired metric groups, spelled exactly as above, separated by single spaces.
 
-Next create a variable to store your SignalFx access token. Create a field called `encrypted_access_token` to store an encrypted SignalFx access token, or simply `access_token` to store an unencrypted token. Paste your access token into the value field. 
+Next create a variable to store your SignalFx access token. Create a field called `encrypted_access_token` to store an encrypted SignalFx access token, or simply `access_token` to store an unencrypted token. Paste your access token into the value field.
 
 If you use `encrypted_access_token`, follow the steps below to encrypt it:
-  * Under `Encryption configuration`, check the box to `Enable helpers for encryption in transit`. A new field will appear labelled `KMS key to encrypt in transit`. 
-  * Select the encryption key you wish to use from the dropdown. A button labelled `Encrypt` will appear next to your environment variables. 
+  * Under `Encryption configuration`, check the box to `Enable helpers for encryption in transit`. A new field will appear labelled `KMS key to encrypt in transit`.
+  * Select the encryption key you wish to use from the dropdown. A button labelled `Encrypt` will appear next to your environment variables.
   * Click the `Encrypt` button next to `encrypted_access_token` once. The value will be replaced by a Ciphertext blob.
 
 If you are not in the `us0` realm in SignalFx, you will need to specify a `realm` environment variable. To determine which realm you are in, check your profile page in the SignalFx web application.
