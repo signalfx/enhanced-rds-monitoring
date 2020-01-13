@@ -1,6 +1,6 @@
 #!/bin/bash
-
-# Copyright (C) 2017 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2017-2018 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2019-2020 Splunk, Inc. All rights reserved.
 
 # Builds the deployable ZIP file for the AWS Lambda function, with all of its
 # dependencies.
@@ -34,10 +34,11 @@ prefix=
 EOF
 
 # Install dependencies
-pip install -r ../requirements.txt --upgrade -t .
+pip3 install -r ../requirements.txt --upgrade -t .
 
 # Package everything up (all dependencies and lambda function code) into the
-# same ZIP archive.
+# same ZIP archive. Make sure to put code in enhanced_rds directory inside zip file, so that all the imports work in Lambda.
+
 zip ../$TARGET -r *
-cd ../$NAME
-zip -u ../$TARGET *.py
+cd ..
+zip -u ./$TARGET $NAME/*.py
