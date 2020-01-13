@@ -1,4 +1,4 @@
-# Copyright (C) 2017 SignalFx, Inc. All rights reserved.
+# Copyright (C) 2017-2020 Splunk, Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,28 +18,16 @@ import boto3
 import gzip
 import json
 import base64
-import warnings
 from signalfx import SignalFx
 from io import StringIO
+from io import BytesIO
 from datetime import datetime
-from .metric_maps import METRICS,\
-                         METRICS_MICROSOFT,\
-                         PROCESS_METRICS,\
-                         PROCESS_METRICS_MICROSOFT,\
-                         METRICS_DIMS,\
-                         METRICS_MICROSOFT_DIMS,\
-                         METRICS_AURORA_DIMS
-
-
-def e(uni_string):
-    """
-    Helper method that encodes unicode as a UTF-8 string.
-
-    :param uni_string: Unicode to encode.
-    :return: UTF-8 version of uni_string
-    """
-    warnings.warn("Python3 uses unicode by default", DeprecationWarning)
-    return uni_string.encode('utf-8')
+from enhanced_rds.metric_maps import METRICS_MICROSOFT_DIMS,\
+    METRICS_MICROSOFT, \
+    PROCESS_METRICS_MICROSOFT, \
+    METRICS, PROCESS_METRICS,\
+    METRICS_AURORA_DIMS, \
+    METRICS_DIMS
 
 
 def decrypt_token(encrypted_key):
@@ -310,7 +298,7 @@ def parse_payload(payload):
     message_data = payload['awslogs']['data']
     decoded_data = base64.b64decode(message_data)
 
-    compressed_data = StringIO(decoded_data)
+    compressed_data = BytesIO(decoded_data)
     with gzip.GzipFile(fileobj=compressed_data, mode='r') as f:
         decompressed_data = f.read()
 
@@ -333,11 +321,11 @@ def pull_metric_names(engine):
     """
 
     # Check engine type
-    if engine == 'SqlServer':
+    if engine.lower() == 'sqlserver':
         full_metrics_list = METRICS_MICROSOFT
         process_overview_metrics = PROCESS_METRICS_MICROSOFT
         extra_dims_map = METRICS_MICROSOFT_DIMS
-    elif engine == 'Aurora':
+    elif engine.lower().startswith('aurora'):
         full_metrics_list = METRICS
         process_overview_metrics = PROCESS_METRICS
         extra_dims_map = METRICS_AURORA_DIMS
@@ -348,7 +336,7 @@ def pull_metric_names(engine):
 
     if os.environ['groups'] != 'All':
         # Pick user-selected metrics
-        desired_metrics = [group for group
+        desired_metrics = [str(group, 'utf-8') for group
                            in os.environ.get('groups').split(' ')]
         metric_list = [group for group in full_metrics_list
                        if group in desired_metrics]

@@ -360,7 +360,7 @@ sql_server_dict = {
             "cpuUsedPc": 0
         },
         {
-            'name': "sqlservr.exe",
+            "name": "sqlservr.exe",
             "pid": 3624,
             "tid": 3672,
             "cpuUsedPc": 32.22

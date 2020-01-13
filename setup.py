@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from setuptools import setup, find_packages
 
@@ -7,7 +7,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='enhanced_rds',
-    version='0.1.0',
+    version='0.2.0',
     description='AWS Lambda function wrapper to capture metrics from enhanced RDS monitoring logs',
     zip_safe=True,
     packages=find_packages(),

@@ -10,3 +10,6 @@
 /build/
 /enhanced_rds.zip
 /*.egg-info
+
+# script to test locally
+local.py
