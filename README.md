@@ -9,12 +9,17 @@ Before you begin, you must enable the Enhanced Monitoring option for the RDS ins
 * [Building from source](#building-from-source)
 * [Metrics collected by this integration](#metric-groups-collected-by-this-integration)
 
+#### Note: Upgrading from version 0.1.0 (Python 2.7) to version 0.2.0 (Python 3.x)
+Please note that the new version requires AWS lambda handler to be set to `enhanced_rds.lambda_script.lambda_handler`.
+
 #### Note: Encryption of your SignalFx access token
 This Lambda function uses your SignalFx access token to send metrics to SignalFx, as an environment variable to the function. While Lambda encrypts all environment variables at rest and decrypts them upon invocation, AWS recommends that all sensitive information such as access tokens be encrypted using a KMS key before function deployment, and decrypted at runtime within the code.
 
 Both procedures below include instructions for using either an encrypted or non-encrypted access token.
 
 ## Deploying through the Serverless Application Repository
+
+#### Note: Currently the latest version available in Serverless Application Repository is 0.1.0 (Python 2.7). For Python 3.x compatibility, please deploy from sources.
 
 ### 1. Set up an encryption key and encrypt your access token (if desired)
 Only follow this step if you chose to manually encrypt your access token.
@@ -125,7 +130,7 @@ Add.
 #### Function code
 Once the function is created you can change the configurations. Upload the ZIP
 file containing the deployment package. Change the text in `Handler` to be
-`lambda_script.lambda_handler`.
+`enhanced_rds.lambda_script.lambda_handler`.
 
 #### Environment variables
 
