@@ -19,8 +19,6 @@ Both procedures below include instructions for using either an encrypted or non-
 
 ## Deploying through the Serverless Application Repository
 
-#### Note: Currently the latest version available in Serverless Application Repository is 0.1.0 (Python 2.7). For Python 3.x compatibility, please deploy from sources.
-
 ### 1. Set up an encryption key and encrypt your access token (if desired)
 Only follow this step if you chose to manually encrypt your access token.
 Either create a new KMS encryption key or select a preexisting one. **The key
