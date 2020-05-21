@@ -35,8 +35,8 @@ Search for `signalfx rds` and choose the appropriate entry based on whether you
 encrypted your access token.
 
 To access the templates directly, find the template for encrypted access
-tokens [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:134183635603:applications~signalfx-enhanced-rds-metrics-encrypted).
-The template for non-encrypted access tokens is [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:134183635603:applications~signalfx-enhanced-rds-metrics).
+tokens [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-2:254067382080:applications~signalfx-enhanced-rds-metrics-encrypted).
+The template for non-encrypted access tokens is [here](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-2:254067382080:applications~signalfx-enhanced-rds-metrics).
 
 ### 3. Fill out application parameters
 Under `Configure application parameters`, choose a name for your function,
