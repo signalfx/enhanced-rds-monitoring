@@ -1,6 +1,6 @@
 # SignalFx Enhanced RDS Monitoring Integration
 
-These instructions describe the steps to deploy the lambda function to
+These instructions describe the steps to deploy the Lambda function to
 parse and report your Enhanced RDS metrics to SignalFx. You can deploy the function either from the Serverless Application Repository (recommended) or from source. 
 
 Choose a deployment method and follow the steps below to encrypt your SignalFx access token, customize the metrics sent to SignalFx, and create and deploy the Lamda function.
