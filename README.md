@@ -1,10 +1,12 @@
 # SignalFx Enhanced RDS Monitoring Integration
 
 These instructions describe the steps to deploy the Lambda function to
-parse and report your Enhanced RDS metrics to SignalFx. You can deploy the function either from the Serverless Application Repository (recommended) or from source. 
+parse and report your Enhanced RDS metrics to SignalFx. You can deploy the function either from the Serverless Application Repository (which is recommended) or by building and deploying from source. 
 
+## Installation
 Choose a deployment method and follow the steps below to encrypt your SignalFx access token, customize the metrics sent to SignalFx, and create and deploy the Lamda function.
 
+### Prerequisites
 Before you begin, you must enable the Enhanced Monitoring option for the RDS instances you want to monitor using this integration. [Click here for instructions on enabling Enhanced Monitoring](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html).
 
 * [Deploying through the Serverless Application Repository](#deploying-through-the-serverless-application-repository)
@@ -17,7 +19,7 @@ If you are upgrading to version 0.2.0, ensure that the AWS Lambda handler is set
 #### Encrypting your SignalFx access token
 The Lambda function uses your SignalFx access token to send metrics to SignalFx, as an environment variable to the function. While Lambda encrypts all environment variables at rest and decrypts them upon invocation, AWS recommends that all sensitive information such as access tokens be encrypted using a KMS key before function deployment, and decrypted at runtime within the code.
 
-Both Serverless Application Repository and source deployment procedures below include instructions for using either an encrypted or non-encrypted access token.
+Both Serverless Application Repository and build from source deployment procedures below include instructions for using either an encrypted or non-encrypted access token.
 
 ## Deploying through the Serverless Application Repository
 Deploying through the Serverless Application Repository is a four-step process if you manually encrypt your access token, and a three-step process otherwise:
@@ -99,19 +101,18 @@ as the key id of the encryption key you used.
 ### 3. Clone the source repo and build the deployment package
 You can find the repo
 [here](https://github.com/signalfx/enhanced-rds-monitoring).
-After you have cloned the repo:
+After you have cloned the repo, do the following:
 ```
 $ cd enhanced-rds-monitoring
 $ ./build.sh
 ```
-The package will be named `enhanced_rds.zip`. This will be the file to upload
-for the Lambda.
+The package will be named `enhanced_rds.zip`. This is the file to upload for the Lambda.
 
 ### 4. Create and configure the Lambda function
 From the Lambda creation screen, make sure you have selected
 `Build from scratch`. Select a name for your function. For `Runtime` select
-`Python3.8` (although `Python3.6` and `Python3.7` are also supported). For the execution role, either select the role you wish to use or
-select `Create from Template` and add KMS decrypt permissions if need be. You
+`Python3.8` (although `Python3.6` and `Python3.7` are also supported). For the execution role, either select the role you want to use or
+select `Create from Template` and add KMS decrypt permissions if necessary. You
 will also need to choose a name for the role.
 
 For subsequent tabs, follow the instructions below.
