@@ -117,17 +117,18 @@ will also need to choose a name for the role.
 For subsequent tabs, follow the instructions below.
 
 #### Designer
-The only thing to be done here is set up the trigger from CloudWatch Logs.
-Select CloudWatch Logs from the list on the left. Below, a section labelled
-`Configure triggers` will appear. For the `Log group` field, select
-`RDSOSMetrics`. You must also choose a filter name, but leave the filter
-pattern blank. You can disable the trigger to start if you wish (though you
-will need to manually enable it later to start sending metrics), then click
-Add.
+The only thing to be done here is to set up the trigger from CloudWatch Logs:
+1. Select CloudWatch Logs from the list on the left. A section labelled
+`Configure triggers` is displayed. For the `Log group` field, select
+`RDSOSMetrics`. 
+2. Choose a filter name, but leave the filter
+pattern blank. You can disable the trigger to start if you want (though you
+will need to manually enable it later to start sending metrics)
+3. Click Add.
 
 #### Function code
-Once the function is created you can change the configurations. Upload the ZIP
-file containing the deployment package. Change the text in `Handler` to be
+Once the function is created you can change the configurations: Upload the ZIP
+file containing the deployment package, then change the text in `Handler` to be
 `enhanced_rds.lambda_script.lambda_handler`.
 
 #### Environment variables
