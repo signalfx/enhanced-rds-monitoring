@@ -1,10 +1,10 @@
-# SignalFx Enhanced RDS Monitoring Integration
+# Splunk Observability Cloud (aka SignalFx) Enhanced RDS Monitoring Integration
 
 These instructions describe the steps to deploy the Lambda function to
-parse and report your Enhanced RDS metrics to SignalFx. You can deploy the function either from the Serverless Application Repository (which is recommended) or by building and deploying from source. 
+parse and report your Enhanced RDS metrics to Splunk Observability Cloud. You can deploy the function either from the Serverless Application Repository (which is recommended) or by building and deploying from source. 
 
 ## Installation
-Choose a deployment method and follow the steps below to encrypt your SignalFx access token, customize the metrics sent to SignalFx, and create and deploy the Lamda function.
+Choose a deployment method and follow the steps below to encrypt your Splunk Observability Cloud (formerly: SignalFx) [access token](https://docs.splunk.com/Observability/admin/authentication-tokens/org-tokens.html#manage-access-tokens), customize the metrics sent to Splunk, and create and deploy the Lamda function.
 
 ### Prerequisites
 Before you begin, you must enable the Enhanced Monitoring option for the RDS instances you want to monitor using this integration. [Click here for instructions on enabling Enhanced Monitoring](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html).
@@ -16,8 +16,8 @@ Before you begin, you must enable the Enhanced Monitoring option for the RDS ins
 #### If you are upgrading from version 0.1.0 (Python 2.7) to version 0.2.0 (Python 3.x)
 If you are upgrading to version 0.2.0, ensure that the AWS Lambda handler is set to `enhanced_rds.lambda_script.lambda_handler`.
 
-#### Encrypting your SignalFx access token
-The Lambda function uses your SignalFx access token to send metrics to SignalFx, as an environment variable to the function. While Lambda encrypts all environment variables at rest and decrypts them upon invocation, AWS recommends that all sensitive information such as access tokens be encrypted using a KMS key before function deployment, and decrypted at runtime within the code.
+#### Encrypting your Splunk Observability Cloud access token
+The Lambda function uses your Splunk Observability Cloud [access token](https://docs.splunk.com/Observability/admin/authentication-tokens/org-tokens.html#manage-access-tokens) to send metrics to Splunk, as an environment variable to the function. While Lambda encrypts all environment variables at rest and decrypts them upon invocation, AWS recommends that all sensitive information such as access tokens be encrypted using a KMS key before function deployment, and decrypted at runtime within the code.
 
 Both Serverless Application Repository and build from source deployment procedures below include instructions for using either an encrypted or non-encrypted access token.
 
@@ -31,6 +31,24 @@ must be in the same availability zone as the RDS instances you are
 monitoring.** You can create and manage encryption keys from IAM in the AWS
 management console. Documentation about KMS encryption from the CLI can be found
 [here](http://docs.aws.amazon.com/cli/latest/reference/kms/encrypt.html). Make sure you have access to the cipher text output by the encryption as well as the key ID of the encryption key you used.
+
+For example this is how you can encrypt your Splunk Observability Cloud access token using AWS CLI and shell tools:
+```shell
+echo -n <ACCESS TOKEN> | base64 -- generates Base64 encoded access token
+
+aws kms encrypt --key-id <KMS KEY ID> --plaintext <BASE64 ENCODED ACCESS TOKEN>
+```
+The `aws kms encrypt` command generates an output similar to the following one:
+```json
+{
+    "CiphertextBlob": "AQIC...Z9rHh",
+    "KeyId": "arn:aws:kms:us-west-1:123456789012:key/aa12de1c-84aa-2624-a777-46ce3b53d36d",
+    "EncryptionAlgorithm": "SYMMETRIC_DEFAULT"
+}
+```
+The `CiphertextBlob` value `AQIC...9rHh` is the encrypted access token.
+
+Note: the `KMS KEY ID` is the last part of the key ARN, e.g. `aa12de1c-84aa-2624-a777-46ce3b53d36d`.
 
 ### 2. Create the Lambda function
 Click `Create Function` from the list of Lambda functions in your AWS console.
@@ -47,18 +65,18 @@ The template for non-encrypted access tokens is [here](https://serverlessrepo.aw
 Under `Configure application parameters`, choose a name for your function and fill out the fields accordingly.
 
 **Parameters for the template using encrypted access tokens**
-- `EncryptedSignalFxAuthToken`: The Ciphertext blob output from your encryption of your SignalFx organization's access token
+- `EncryptedSignalFxAuthToken`: The Ciphertext blob output from your encryption of your Splunk Observability Cloud organization's access token
 - `KeyId`: The key ID of your KMS encryption key; it is the last section of the key's ARN.
 - `SelectedMetricGroups`: The metric groups you wish to send. Enter `All` if you want all available metrics. Otherwise, list the names of desired metric groups, spelled exactly as they are below, separated by single spaces. See [Metrics collected by this integration](#metric-groups-collected-by-this-integration) for options.
-- `Realm`: Your SignalFx Realm. To determine what realm you are in, check your profile page in the SignalFx web application. Default: `us0`.
+- `Realm`: Your Splunk Observability Cloud Realm. To determine what realm you are in, check your profile page in the Splunk Observability Cloud web application. Default: `us0`.
 
 **Parameters for the template using non-encrypted access tokens**
-- `SignalFxAuthToken`: Your SignalFx organization's access token
+- `SignalFxAuthToken`: Your Splunk Observability Cloud organization's access token
 - `SelectedMetricGroups`: The metric groups you wish to send. Enter `All` if you want all available metrics. Otherwise, list the names of desired metric groups, spelled exactly as they are below, separated by single spaces. See [Metrics collected by this integration](#metric-groups-collected-by-this-integration) for options.
-- `Realm`: Your SignalFx realm. To determine what realm you are in, check your profile page in the SignalFx web application. Default: `us0`.
+- `Realm`: Your Splunk Observability Cloud realm. To determine what realm you are in, check your profile page in the Splunk Observability Cloud web application. Default: `us0`.
 
-#### SignalFx realms defined:
-A realm is a self-contained deployment of SignalFx in which your organization is hosted.
+#### Splunk Observability Cloud realms defined:
+A realm is a self-contained deployment of Splunk Observability Cloud in which your organization is hosted.
 Different realms have different API endpoints.
 For example, the endpoint for sending data in the us1 realm is ingest.us1.signalfx.com,
 and the endpoint for the eu0 realm is ingest.eu0.signalfx.com. If you try to send data to the incorrect realm,
@@ -78,13 +96,13 @@ blank.
 
 Click `Add`, then click `Save` in the upper right corner.
 
-That's it! Your metrics are on the way to SignalFx ingest!
+That's it! Your metrics are on the way to Splunk Observability Cloud ingest!
 
 ## Building from source
 
 ### 1. Set up the execution role
 The execution role just needs basic Lambda execution permissions and KMS
-decrypt permissions (if you wish to encrypt your SignalFx access token). If you
+decrypt permissions (if you wish to encrypt your Splunk Observability Cloud access token). If you
 don't want to create one, you can select from a list of templates when you
 create the lambda function.
 
@@ -136,7 +154,7 @@ file containing the deployment package, then change the text in `Handler` to be
 
 First create an environment variable called `groups`. This will store the list of metric groups to be reported. To report all available metrics, enter `All`. Otherwise, list the names of desired metric groups, spelled exactly as above, separated by single spaces.
 
-Next, create a variable to store your SignalFx access token. Create a field called `encrypted_access_token` to store an encrypted SignalFx access token, or simply `access_token` to store an unencrypted token. Paste your access token into the value field.
+Next, create a variable to store your Splunk Observability Cloud access token. Create a field called `encrypted_access_token` to store an encrypted Splunk Observability Cloud access token, or simply `access_token` to store an unencrypted token. Paste your access token into the value field.
 
 If you use `encrypted_access_token`, follow the steps below to encrypt it:
   * Under `Encryption configuration`, check the box to `Enable helpers for encryption in transit`. A new field will appear labelled `KMS key to encrypt in transit`.
@@ -146,10 +164,11 @@ If you use `encrypted_access_token`, follow the steps below to encrypt it:
 If you are not in the `us0` realm in SignalFx, you need to specify a `realm` environment variable. To determine which realm you are in, check your profile page in the SignalFx web application.
 
 #### Basic settings
-Under basic settings, set `Timeout` to `0 min 5 sec`.
+
+Under basic settings, set `Timeout` to `0 min 15 sec`.
 
 Click `Save`, and once the trigger is enabled, your function will start sending
-your metrics to SignalFx!
+your metrics to Splunk Observability Cloud!
 
 ## Metric groups collected by this integration
 
@@ -177,5 +196,5 @@ The following metric groups are collected by this integration. To collect all of
 - OSprocesses*
 - RDSprocesses*
 
-\* Process-based metric group added by SignalFx, does not appear in AWS
+\* Process-based metric group added by Splunk Observability Cloud, does not appear in AWS
 documentation.
