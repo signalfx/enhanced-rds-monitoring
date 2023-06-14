@@ -336,7 +336,7 @@ def pull_metric_names(engine):
 
     if os.environ['groups'] != 'All':
         # Pick user-selected metrics
-        desired_metrics = [str(group, 'utf-8') for group
+        desired_metrics = [group for group
                            in os.environ.get('groups').split(' ')]
         metric_list = [group for group in full_metrics_list
                        if group in desired_metrics]
